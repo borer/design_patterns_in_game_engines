@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Design Patterns in Game Engines</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/serif.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<style>
+			.green {
+				color: #61BEB1;
+			}
+
+			.grey {
+				color: #7F578F;
+			}
+
+			.violet {
+				/*color: #FF5E99;*/
+				color: #E24194;
+			}
+
+			.marginFromTitle {
+				margin-top: 20px;
+			}
+		</style>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h1>Design Patterns<br />in<br />Game Engines</h1>
+					<h3>Created by Bogdan Gochev</a></h3>
+				</section>
+
+				<section>
+					<h2>Contents</h2>
+					<br />
+					<ul>
+						<li>The Game Loop</li>
+						<li>Entity Component System (ECS)</li>
+						<li>Unity3D example</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Entity Component System</h2>
+					<br />
+					<p>Games are made by <span class="grey">objects</span> with diferent <span class="green">properties</span> and <span class="violet">behaviours</span></p>
+
+					<p class="fragment"><span class="grey">Entities</span> represent objects</p>
+
+					<p class="fragment"><span class="green">Components</span> represent object properties</p>
+
+					<p class="fragment"><span class="violet">Systems</span> represent object behaviours</p>
+				</section>
+
+				<section>
+					<h2>Entity &lt;---&gt; Component</h2>
+					<br />
+					<div class="marginFromTitle">
+					<pre>
+| entity-ID | component-position |component-velocity |component-presentation|
+|-----------|--------------------|-------------------|----------------------|
+|  entity1  | {x: 0, y: 0}       |                   | {color: "green"}     |
+|  entity2  | {x: 10, y: 15}     | {x: 2, y: 0}      | {color: "blue"}      |
+|  entity3  | {x: 18, y: 25}     |                   | {color: "yellow"}    |
+					</pre>
+					</div>
+
+				</section>
+
+				<section>
+					<h2>System (I)</h2>
+					<br />
+					<pre>
+| entity-ID | component-position |component-velocity |component-presentation|
+|-----------|--------------------|-------------------|----------------------|
+|  entity2  | {x: 10, y: 15}     | {x: 2, y: 0}      | {color: "blue"}      |
+
+                                    _
+                                   | |
+                                   | | 
+                                  -   -
+                                   \ /
+                                    v
+
+
+                                 Entity2
+                         +--------------------+
+                       / | Position           | \
+                      |  |                    |  Physics
+                      |  | Velocity           | /
+                 Render  |                    |
+                       \ | Presentation       |
+                         +--------------------+
+					</pre>
+				</section>
+
+				<section>
+					<h2>System (II)</h2>
+					<br />
+<div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">function</span> <span style="color: #a6e22e">renderSystem</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">Entity</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">)</span> <span style="color: #f8f8f2">{</span>
+	<span style="color: #66d9ef">var</span> <span style="color: #a6e22e">positionComponent</span> <span style="color: #f92672">=</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">getComponent</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&#39;PositionComponent&#39;</span><span style="color: #f8f8f2">);</span>
+	<span style="color: #66d9ef">var</span> <span style="color: #a6e22e">presentation</span> <span style="color: #f92672">=</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">getComponent</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&#39;PresentationComponent&#39;</span><span style="color: #f8f8f2">);</span>
+
+	<span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">(</span><span style="color: #f92672">!</span><span style="color: #a6e22e">positionComponent</span> <span style="color: #f92672">&amp;&amp;</span> <span style="color: #f92672">!</span><span style="color: #a6e22e">presentation</span><span style="color: #f8f8f2">)</span> <span style="color: #f8f8f2">{</span>
+		<span style="color: #66d9ef">return</span><span style="color: #f8f8f2">;</span>
+	<span style="color: #f8f8f2">}</span>
+
+        <span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">setPosition</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">positionComponent</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">x</span><span style="color: #f8f8f2">,</span> <span style="color: #a6e22e">positionComponent</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">y</span><span style="color: #f8f8f2">);</span>
+	<span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">setColor</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">presentation</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">color</span><span style="color: #f8f8f2">);</span>
+        <span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">render</span><span style="color: #f8f8f2">();</span>
+<span style="color: #f8f8f2">}</span>
+</pre></div>
+				</section>
+			</div>
+
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: false,
+				history: true,
+				center: true,
+				fragments: true,
+				touch: true,
+				autoSlide: 0,
+				mouseWheel: false,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+	</body>
+</html>
