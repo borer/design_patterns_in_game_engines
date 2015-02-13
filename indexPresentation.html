@@ -62,17 +62,120 @@
 
 				<section>
 					<h2>Contents</h2>
-					<br />
+					<br>
 					<ul>
 						<li>The Game Loop</li>
 						<li>Entity Component System (ECS)</li>
-						<li>Unity3D example</li>
+						<li>Unity3D examples</li>
 					</ul>
 				</section>
 
 				<section>
+					<h2>The Good Old Days</h2>
+					<br>
+					<pre>
+while (true) {
+  var command = readCommand();
+  handleCommand(command);
+}
+					</pre>
+				</section>
+
+				<section>
+					<h2>The Event Loop</h2>
+					<br>
+					<pre>
+while (true) {
+    var event = waitForEvent();
+    dispatchEvent(event);
+}
+					</pre>
+				</section>
+
+				<section>
+					<h2>The Game Loop</h2>
+					<br>
+					<pre>
+while (true) {
+  processInput();
+  update();
+  render();
+}
+					</pre>
+					<p class="fragment">buy fast machine == be f*ck</p>
+				</section>
+
+				<section>
+					<h2>The (slightly) Better Game Loop</h2>
+					<br>
+					<pre>
+while (true) {
+  var start = getCurrentTime();
+  processInput();
+  update();
+  render();
+
+  sleep(start + MS_PER_FRAME - getCurrentTime());
+}
+					</pre>
+					<pre class="fragment">                 
++---------------+     +-------------+     +--------+     
+| Process Input |---->| Update Game |---->| Render |---->( Sleep )-------+
++---------------+     +-------------+     +--------+                     |
+         ^                                                               |
+         |                                                               |
+         +---------------------------------------------------------------+
+					</pre>
+				</section>
+
+				<section>
+					<h2>The (almost) Better Game Loop</h2>
+					<br>
+					<pre>
+var lastTime = getCurrentTime();
+while (true) {
+  var current = getCurrentTime();
+  var elapsed = current - lastTime;
+  processInput();
+  update(elapsed);
+  render();
+  lastTime = current;
+}
+					</pre>
+				</section>
+
+				<section>
+					<h2>The Better Game Loop</h2>
+					<pre>
+var previous = getCurrentTime(); 
+var lag = 0.0;
+while (true) {
+  var current = getCurrentTime();
+  var elapsed = current - previous;
+  previous = current; 
+  lag += elapsed;
+
+  processInput();
+
+  while (lag >= MS_PER_UPDATE) {
+    update();
+    lag -= MS_PER_UPDATE;
+  }
+  render();
+}</pre>
+					<pre class="fragment">
+                       +-->(Sleep)--+
+                       |            V
++---------------+     +--------------+     +--------+     
+| Process Input |---->| Update Game  |---->| Render |----------+
++---------------+     +--------------+     +--------+          |
+         ^                                                     |
+         +-----------------------------------------------------+</pre>
+				</section>
+
+				<section>
 					<h2>Entity Component System</h2>
-					<br />
+					<br>
 					<p>Games are made by <span class="grey">objects</span> with diferent <span class="green">properties</span> and <span class="violet">behaviours</span></p>
 
 					<p class="fragment"><span class="grey">Entities</span> represent objects</p>
@@ -84,7 +187,7 @@
 
 				<section>
 					<h2>Entity &lt;---&gt; Component</h2>
-					<br />
+					<br>
 					<div class="marginFromTitle">
 					<pre>
 | entity-ID | component-position |component-velocity |component-presentation|
@@ -98,8 +201,8 @@
 				</section>
 
 				<section>
-					<h2>System (I)</h2>
-					<br />
+					<h2>System</h2>
+					<br>
 					<pre>
 | entity-ID | component-position |component-velocity |component-presentation|
 |-----------|--------------------|-------------------|----------------------|
@@ -125,21 +228,17 @@
 				</section>
 
 				<section>
-					<h2>System (II)</h2>
-					<br />
-<div style="background: #272822; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #66d9ef">function</span> <span style="color: #a6e22e">renderSystem</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">Entity</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">)</span> <span style="color: #f8f8f2">{</span>
-	<span style="color: #66d9ef">var</span> <span style="color: #a6e22e">positionComponent</span> <span style="color: #f92672">=</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">getComponent</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&#39;PositionComponent&#39;</span><span style="color: #f8f8f2">);</span>
-	<span style="color: #66d9ef">var</span> <span style="color: #a6e22e">presentation</span> <span style="color: #f92672">=</span> <span style="color: #a6e22e">entity</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">getComponent</span><span style="color: #f8f8f2">(</span><span style="color: #e6db74">&#39;PresentationComponent&#39;</span><span style="color: #f8f8f2">);</span>
+					<h2>ECS code examples</h2>
+				</section>
 
-	<span style="color: #66d9ef">if</span> <span style="color: #f8f8f2">(</span><span style="color: #f92672">!</span><span style="color: #a6e22e">positionComponent</span> <span style="color: #f92672">&amp;&amp;</span> <span style="color: #f92672">!</span><span style="color: #a6e22e">presentation</span><span style="color: #f8f8f2">)</span> <span style="color: #f8f8f2">{</span>
-		<span style="color: #66d9ef">return</span><span style="color: #f8f8f2">;</span>
-	<span style="color: #f8f8f2">}</span>
+				<section>
+					<h2>ECS diagram</h2>
+					<br>
+					<img src="ecsClassDiagram.png">
+				</section>
 
-        <span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">setPosition</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">positionComponent</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">x</span><span style="color: #f8f8f2">,</span> <span style="color: #a6e22e">positionComponent</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">y</span><span style="color: #f8f8f2">);</span>
-	<span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">setColor</span><span style="color: #f8f8f2">(</span><span style="color: #a6e22e">presentation</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">color</span><span style="color: #f8f8f2">);</span>
-        <span style="color: #a6e22e">canvas</span><span style="color: #f8f8f2">.</span><span style="color: #a6e22e">render</span><span style="color: #f8f8f2">();</span>
-<span style="color: #f8f8f2">}</span>
-</pre></div>
+				<section>
+					<h2>Unity3D examples</h2>
 				</section>
 			</div>
 

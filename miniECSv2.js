@@ -7,10 +7,11 @@ var miniECS = {
 	Systems: {}
 };
 
+var globalCount = 0;
 /////////////////////////////////////////////////////// ENTITY
 miniECS.Entity = function() {
-	this.id = miniECS.Entity.prototype._count;
-	miniECS.Entity.prototype._count++;
+	this.id = globalCount;
+	globalCount++;
 
 	this.components = {};
 	this.createdNodes = {};
@@ -24,7 +25,6 @@ miniECS.Entity = function() {
 		return false;
 	};
 };
-miniECS.Entity.prototype._count = 0;
 miniECS.Entity.prototype.addComponent = function(component) {
 	component.entityId = this.id;
 	this.components[component.name] = component;
@@ -45,7 +45,6 @@ miniECS.Entity.prototype.addComponent = function(component) {
 		}, this);
 
 		if (hasAllComponents && !alreadyCreated) {
-			console.log('inserting ' + systemName + ' for entity '+ this.id);
 			node.entityId = this.id;
 			miniECS.Nodes[systemName].push(node);
 			this.createdNodes[systemName] = node;
@@ -183,7 +182,7 @@ var printObjectData = function(object) {
 };
 
 var inspectObject = function(object) {
-	console.log(util.inspect(object, { showHidden: true, depth: null }));
+	console.log(util.inspect(object, { showHidden: true, depth: null, colors: true }));
 };
 
 /////////////////////////////////////////////////////// Ultimate Game Editor
@@ -191,7 +190,7 @@ createPlayerPrefab();
 createTreePrefab();
 createCarPrefab();
 
-printObjectData(miniECS);
+// printObjectData(miniECS);
 // inspectObject(miniECS);
 
 /////////////////////////////////////////////////////// Game Loop
